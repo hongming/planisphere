@@ -50,9 +50,8 @@ for language in text.text:
 
     # Render climates for latitudes at 5-degree spacings from 10 deg -- 85 deg, plus 52N
     latitude: float
-#    for latitude in list(range(-80, 90, 5)) + [52]:
-    for latitude in list(range(30, 50, 40)) + [52]:
-
+    for latitude in list(range(-80, 90, 5)) + [52]:
+        
         # Do not make equatorial planispheres, as they don't really work
         if -10 < latitude < 10:
             continue
@@ -102,9 +101,21 @@ for language in text.text:
         # Wait for cairo to wake up and close the files
         time.sleep(1)
 
+        # Select appropriate compiler based on language / 根据语言选择合适的编译器
+        if language in ["zh", "cn", "chinese"]:  # djust according to your language codes / 根据您的语言代码调整
+            compiler = "xelatex"
+        else:
+            compiler = "pdflatex"
+
         # Build LaTeX documentation
         for build_pass in range(3):
-            subprocess.check_output("cd doc ; pdflatex planisphere{lang_short}.tex".format(**subs), shell=True)
+            try:
+                subprocess.check_output("cd doc ; {compiler} planisphere{lang_short}.tex".format(compiler=compiler, **subs), shell=True)
+            except subprocess.CalledProcessError as e:
+                print(f"LaTeX compilation failed: {e}")
+                print("If using Chinese characters, make sure XeLaTeX is installed and the tex file includes \\usepackage{{xeCJK}}")
+                raise
+
 
         os.system("mv doc/planisphere{lang_short}.pdf "
                   "{dir_out}/planisphere_{abs_lat:02d}{ns}_{lang}.pdf".format(**subs))

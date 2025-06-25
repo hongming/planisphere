@@ -1,0 +1,155 @@
+% planisphere.tex
+%
+% The LaTeX code in this file brings together into a single document the
+% various components of the model planisphere.
+%
+% Copyright (C) 2014-2024 Dominic Ford <https://dcford.org.uk/>
+%
+% This code is free software; you can redistribute it and/or modify it under
+% the terms of the GNU General Public License as published by the Free Software
+% Foundation; either version 2 of the License, or (at your option) any later
+% version.
+%
+% You should have received a copy of the GNU General Public License along with
+% this file; if not, write to the Free Software Foundation, Inc., 51 Franklin
+% Street, Fifth Floor, Boston, MA  02110-1301, USA
+
+% ----------------------------------------------------------------------------
+
+\documentclass[a4paper,onecolumn,10pt]{article}
+\usepackage{xeCJK}  % 支持中日韩字符
+\setCJKmainfont{PingFang SC}  % 设置中文字体（宋体）
+\usepackage[dvips]{graphicx}
+\usepackage{graphicx}
+\usepackage{fancyhdr,url}
+\usepackage{parskip}
+\usepackage[pdftitle={Build your own planisphere}, pdfauthor={Dominic Ford}, pdfsubject={Build your own planisphere}, pdfkeywords={Build your own planisphere}, colorlinks=true, linkcolor=blue, citecolor=blue, filecolor=blue, urlcolor=blue]{hyperref}
+\renewcommand{\familydefault}{\sfdefault}
+\pagestyle{fancy}
+
+\lhead{\it 制作您的活动星图}
+\chead{}
+\rhead{\thepage}
+\lfoot{}\rfoot{}
+\cfoot{\bf\footnotesize\copyright\ 2014--2024 Dominic Ford. 根据GNU通用公共许可证第3版分发。文档下载自 \url{https://in-the-sky.org/planisphere/}}
+
+\fancypagestyle{plain}{%
+\fancyhf{} % clear all header and footer fields
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
+
+\title{制作您的活动星图}
+\author{作者Dominic Ford}
+\date{2014--2024}
+
+\begin{document}
+\maketitle
+\setcounter{footnote}{1}
+
+【“夜语星趴”专用中文版说明：本中文版本tex文本内容、星图标注均使用
+Claude 4 Sonnet生成，并经人工编辑，仅适用于浙江高田坑村（北纬30度附近）】
+
+活动星图是一种简单的手持设备，显示在任何特定时间夜空中可见星星的地图。通过旋转星轮，
+它展示了星星如何在夜空中移动，以及不同星座在一年中不同时间的可见情况。
+
+在这里，我提供了一个套件，您可以下载并打印，用纸张或硬纸板制作您自己的活动星图。
+
+活动星图的设计取决于使用地点的地理位置，因为从不同地方可以看到不同的星星。我已经为广泛的
+纬度范围创建了套件，您可以从以下地址下载：
+
+\url{https://in-the-sky.org/planisphere/}
+
+本文档中提供的活动星图是为纬度\input{tmp/lat}使用而设计的。
+ 
+\section*{您需要的材料}
+
+\begin{itemize}
+\item 两张A4纸，或最好是薄卡纸。
+\item 剪刀。
+\item 一个开脚钉扣件。
+\item 可选：一张透明塑料片，例如用于投影仪的醋酸纤维片。
+\item 可选：少量胶水。
+\end{itemize}
+
+\section*{组装说明}
+
+{\bf 步骤 1} -- 活动星图的外观因您居住的地方而略有不同。本文档中准备的活动星图适用于
+地球上纬度\input{tmp/lat}几度范围内的任何地方。如果您居住在别处，您应该从以下地址下载
+其他套件：
+
+\url{https://in-the-sky.org/planisphere/}
+
+{\bf 步骤 2} -- 将此PDF文件后面显示星轮和活动星图主体的页面打印到两张不同的纸上，
+或最好打印到薄卡纸上。
+
+{\bf 步骤 3} -- 小心地剪出星轮和活动星图的主体。同时剪出活动星图主体的灰色阴影区域，
+如果您有的话，还要剪出打印在透明塑料上的网格线。如果您使用硬纸板，您可能希望沿着虚线
+小心地在活动星图主体上刻痕，以便稍后更容易沿此线折叠。
+
+{\bf 步骤 4} -- 星轮中心有一个小圆圈，活动星图主体底部有一个匹配的小圆圈。在每个上面
+打一个小孔（直径约2毫米）。如果手头有打孔器，那是理想的，否则使用圆规尖端并通过圆周
+运动来扩大孔洞。
+
+{\bf 步骤 5} -- 将开脚钉扣件穿过星轮中心，扣件头部紧贴星轮的印刷面。然后将活动星图
+主体套在同一个扣件上，印刷面朝向扣件背面。将扣件向下折叠以固定两张硬纸板。
+
+{\bf 步骤 6 (可选)} -- 如果您将PDF文件的最后一页打印在塑料片上，现在应该将这个网格线
+粘贴到您从活动星图主体上剪出的观测窗口上。
+
+{\bf 步骤 7} -- 沿着虚线折叠活动星图主体，使星轮的正面通过您在主体上剪出的窗口显示出来。
+
+{\bf 恭喜，您的活动星图现在可以使用了！}
+
+\section*{如何使用您的活动星图}
+
+转动星轮，直到找到边缘标有今日日期的位置，将此位置与当前时间对齐。观测窗口现在显示
+天空中所有可见的星座。
+
+走到室外并面向北方。将活动星图举向天空，观测窗口底部标记的星星应与您在前方天空中看到的
+星星相匹配。
+
+转身面向东方或西方，旋转活动星图，使"东"或"西"字样位于窗口底部。再次确认，观测窗口
+底部的星星应与您在前方天空中看到的星星相匹配。
+
+如果您将高度和方位角网格线打印在透明塑料上，这些线条可以让您计算出天体在天空中的高度
+和方向。圆圈绘制在地平线上方10、20、30、...、80度的高度上。作为参考，十度的距离大约
+相当于手臂伸直时的一个手掌宽度。曲线是连接地平线上的点到您头顶正上方点的垂直线。
+它们绘制在基本方向S、SSE、SE、ESE、E等。
+
+\section*{定制活动星图}
+
+这个活动星图套件是使用一系列Python脚本和pycairo图形库设计的。如果您想定制您的活动星图，
+欢迎您从我的GitHub账户下载脚本并修改它们，但请注明来源：
+
+\url{https://github.com/dcf21/planisphere}
+
+\section*{许可证}
+
+与{\tt In-The-Sky.org}上的其他内容一样，这些活动星图套件的版权归\copyright\ Dominic Ford所有。
+但是，{\tt In-The-Sky.org}上的所有内容都是为了全世界业余天文学家的利益而提供的，您可以在
+以下条件下修改和/或重新分发本网站上的任何材料：(1) 任何有相关版权文本的项目{\bf 必须}在您的
+重新分发版本中包含该{\bf 未修改}的文本，(2) 您{\bf 必须}注明我，Dominic Ford，为原作者和
+版权持有人，(3) 您{\bf 不得}从您对本网站材料的复制中获得任何利润，{\bf 除非}您是明确以
+推进天文科学为目标的注册慈善机构，{\bf 或者}您获得了作者的书面许可。
+
+\newpage
+
+\centerline{\includegraphics{tmp/starwheel}}
+
+\vspace{1cm}
+活动星图的中央星轮，应夹在折叠的支架内。
+
+\newpage
+\thispagestyle{empty}
+\vspace*{-3.0cm}
+\centerline{\includegraphics{tmp/holder}}
+\newpage
+
+\centerline{\includegraphics{tmp/altaz}}
+
+\vspace{1cm}
+这个网格线可以选择性地打印在透明塑料上，并粘贴到活动星图主体的剪出窗口中，
+以显示天空中天体的高度和方向。
+
+\end{document}
+

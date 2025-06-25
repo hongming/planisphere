@@ -337,7 +337,7 @@ class GraphicsContext:
             self.context.set_dash([])
 
     def get_font_family(self) -> str:
-        """根据语言和系统选择合适的字体"""
+        """Select appropriate font based on language and system / 根据语言和系统选择合适的字体"""
         import platform
         
         language = self.settings.get('language', 'en')
@@ -363,7 +363,7 @@ class GraphicsContext:
             else:
                 return "Noto Sans CJK KR"
         else:
-            return "FreeSerif"  # 其他语言使用原有字体
+            return "FreeSerif"  # Other languages use original fonts/其他语言使用原有字体
 
     def set_font_size(self, font_size: float) -> None:
         """
