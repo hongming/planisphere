@@ -125,7 +125,8 @@ class GraphicsContext:
                  page: GraphicsPage,
                  offset_x: float = 0,
                  offset_y: float = 0,
-                 rotation: float = 0):
+                 rotation: float = 0,
+                 settings=None):
         """
         A thin wrapper to produce vector graphics using cairo. This class provides a drawing context that we can use to
         draw a figure onto a page.
@@ -138,7 +139,11 @@ class GraphicsContext:
             The offset of this drawing from (0,0) on the page, metres
         :param rotation:
             The rotation of this drawing, radians
+        :param settings:
+            Settings dictionary containing language and other configration
         """
+
+        self.settings = settings or {}
 
         assert isinstance(page, GraphicsPage)
 
@@ -331,6 +336,35 @@ class GraphicsContext:
         else:
             self.context.set_dash([])
 
+    def get_font_family(self) -> str:
+        """根据语言和系统选择合适的字体"""
+        import platform
+        
+        language = self.settings.get('language', 'en')
+        system = platform.system()
+        
+        if language == 'zh':  # 中文
+            if system == "Darwin":  # macOS
+                return "PingFang SC"
+            elif system == "Linux":
+                return "Noto Sans CJK SC"
+            elif system == "Windows":
+                return "Microsoft YaHei"
+            else:
+                return "SimSun"  # 备选方案
+        elif language == 'ja':  # 日文
+            if system == "Darwin":
+                return "Hiragino Kaku Gothic ProN"
+            else:
+                return "Noto Sans CJK JP"
+        elif language == 'ko':  # 韩文
+            if system == "Darwin":
+                return "Apple SD Gothic Neo"
+            else:
+                return "Noto Sans CJK KR"
+        else:
+            return "FreeSerif"  # 其他语言使用原有字体
+
     def set_font_size(self, font_size: float) -> None:
         """
         Change the font size used to render text.
@@ -355,7 +389,8 @@ class GraphicsContext:
         if bold is not None:
             self.font_bold = bold
 
-        self.context.select_font_face(family="FreeSerif",
+        font_family = self.get_font_family()
+        self.context.select_font_face(family=font_family,
                                       slant=cairo.FONT_SLANT_ITALIC if self.font_italic else cairo.FONT_SLANT_NORMAL,
                                       weight=cairo.FONT_WEIGHT_BOLD if self.font_bold else cairo.FONT_SLANT_NORMAL
                                       )
@@ -666,7 +701,7 @@ class BaseComponent:
         assert isinstance(page, GraphicsPage)
 
         # Create a drawing context for drawing onto this page
-        with GraphicsContext(page=page, offset_x=offset_x, offset_y=offset_y, rotation=rotation) as context:
+        with GraphicsContext(page=page, offset_x=offset_x, offset_y=offset_y, rotation=rotation,settings=self.settings) as context:
             # Render this item
             self.do_rendering(settings=self.settings, context=context)
 
