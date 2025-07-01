@@ -1,3 +1,7 @@
+## 新功能 What's new in 2025 
+增加中文界面支持，可制作中文华星座、盘面 Add Chinese language support 
+新增天体模块，通过补充csv文件，以十字形标记这些新天体的RA/DEC坐标 Add other celestial bodies and mark the position with a cross
+
 ## Make your own cardboard model planisphere
 
 This repository contains Python scripts that can be used to produce a cardboard cut-and-glue kit to make your own model planisphere.
