@@ -233,11 +233,11 @@ class StarWheel(BaseComponent):
             x = -r * cos(ra * unit_deg)
             y = -r * sin(ra * unit_deg)
             # size = 0.36 * unit_mm * (5 - mag)  # 十字的大小
-            size = 2.0 * unit_mm  # 固定大小，不依赖星等
+            size = 1.0 * unit_mm  # 固定大小，不依赖星等
             draw_cross(context, x, y, size, theme['DSO'])
 
         # Write constellation names
-        context.set_font_size(0.7)
+        context.set_font_size(0.5)
         context.set_color(theme['constellation'])
 
         # Open a list of the coordinates where we place the names of the constellations
@@ -410,13 +410,15 @@ def draw_cross(context, centre_x: float, centre_y: float, size: float, color):
     context.begin_path()
     context.move_to(centre_x - half_size, centre_y)
     context.line_to(centre_x + half_size, centre_y)
-    context.stroke(color=color, line_width=0.5 * unit_mm)
-    
+    # context.stroke(color=color, line_width=3 * unit_mm)
+    context.stroke(color=color, line_width=0.3)
+
     # 绘制垂直线
     context.begin_path()
     context.move_to(centre_x, centre_y - half_size)
     context.line_to(centre_x, centre_y + half_size)
-    context.stroke(color=color, line_width=0.5 * unit_mm)
+    # context.stroke(color=color, line_width=1.5 * unit_mm)
+    context.stroke(color=color, line_width=0.6)
 
 # Do it right away if we're run as a script
 if __name__ == "__main__":
