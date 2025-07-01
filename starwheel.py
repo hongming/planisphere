@@ -22,6 +22,7 @@ Render the star wheel for the planisphere.
 """
 
 import re
+import csv
 
 from math import pi, sin, cos, atan2, hypot
 from numpy import arange
@@ -208,6 +209,33 @@ class StarWheel(BaseComponent):
                            radius=0.18 * unit_mm * (5 - mag))
             context.fill(color=theme['star'])
 
+
+        # draw custom objects
+        custom_objects = read_custom_objects("custom_objects.csv")
+        for object_id, object_data in custom_objects['stars'].items():
+            ra, dec, mag = object_data
+
+            # Discard custom objects fainter than mag 4
+            if mag == "-" or float(mag) > 4.0:
+                continue
+
+            # If we're making a southern hemisphere planisphere, we flip the sky upside down
+            if is_southern:
+                ra *= -1
+                dec *= -1
+
+            r: float = radius(dec=dec, latitude=latitude)
+            if r > r_2:
+                continue
+
+            # Represent each star with a small cross
+            # 绘制天体（十字形状）
+            x = -r * cos(ra * unit_deg)
+            y = -r * sin(ra * unit_deg)
+            # size = 0.36 * unit_mm * (5 - mag)  # 十字的大小
+            size = 2.0 * unit_mm  # 固定大小，不依赖星等
+            draw_cross(context, x, y, size, theme['DSO'])
+
         # Write constellation names
         context.set_font_size(0.7)
         context.set_color(theme['constellation'])
@@ -317,6 +345,78 @@ class StarWheel(BaseComponent):
         context.circle(centre_x=0, centre_y=0, radius=r_2)
         context.stroke(color=theme['date'], line_width=1, dotted=False)
 
+
+# Add custom objects on the starwheel
+def parse_hms_dms(ra_str: str, dec_str: str) -> Tuple[float, float]:
+    """
+    将HMS(时分秒)格式的赤经和DMS(度分秒)格式的赤纬转换为度数
+    """
+    # 解析赤经 (RA)
+    ra_pattern = r"(\d+)h(\d+)m(\d+(\.\d+)?)s"
+    ra_match = re.match(ra_pattern, ra_str)
+    if ra_match:
+        ra_hrs = float(ra_match.group(1))
+        ra_min = float(ra_match.group(2))
+        ra_sec = float(ra_match.group(3))
+        ra = (ra_hrs + ra_min / 60 + ra_sec / 3600) / 24 * 360
+    else:
+        raise ValueError(f"Invalid RA format: {ra_str}")
+
+    # 解析赤纬 (DEC)
+    dec_pattern = r"([+-]?\d+)°(\d+)'(\d+(\.\d+)?)\""
+    dec_match = re.match(dec_pattern, dec_str)
+    if dec_match:
+        dec_deg = float(dec_match.group(1))
+        dec_min = float(dec_match.group(2))
+        dec_sec = float(dec_match.group(3))
+        # 保持符号的正确性
+        dec_abs = abs(dec_deg) + dec_min / 60 + dec_sec / 3600
+        dec = dec_abs if dec_deg >= 0 else -dec_abs
+    else:
+        raise ValueError(f"Invalid DEC format: {dec_str}")
+
+    return ra, dec
+
+def read_custom_objects(csv_file: str) -> dict:
+    """
+    使用内置csv模块读取自定义天体文件
+    """
+    try:
+        objects_dict = {'stars': {}}
+        
+        with open(csv_file, 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                # 确保CSV文件包含必要的列
+                if all(col in row for col in ['id', 'ra', 'dec', 'mag']):
+                    try:
+                        # 转换坐标格式
+                        ra, dec = parse_hms_dms(row['ra'], row['dec'])
+                        objects_dict['stars'][row['id']] = [ra, dec, float(row['mag'])]
+                    except ValueError as e:
+                        print(f"Error processing row {row['id']}: {e}")
+                        continue
+                
+        return objects_dict
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        return {'stars': {}}
+
+def draw_cross(context, centre_x: float, centre_y: float, size: float, color):
+    """绘制十字形状"""
+    half_size = size / 2
+    
+    # 绘制水平线
+    context.begin_path()
+    context.move_to(centre_x - half_size, centre_y)
+    context.line_to(centre_x + half_size, centre_y)
+    context.stroke(color=color, line_width=0.5 * unit_mm)
+    
+    # 绘制垂直线
+    context.begin_path()
+    context.move_to(centre_x, centre_y - half_size)
+    context.line_to(centre_x, centre_y + half_size)
+    context.stroke(color=color, line_width=0.5 * unit_mm)
 
 # Do it right away if we're run as a script
 if __name__ == "__main__":
