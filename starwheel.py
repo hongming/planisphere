@@ -211,30 +211,40 @@ class StarWheel(BaseComponent):
 
 
         # draw custom objects
-        custom_objects = read_custom_objects("custom_objects.csv")
-        for object_id, object_data in custom_objects['stars'].items():
-            ra, dec, mag = object_data
+        try:
+            custom_objects = read_custom_objects("custom_objects.csv")
+            if not custom_objects or 'stars' not in custom_objects:
+                print("No custom objects loaded")
+            else:
+                for object_id, object_data in custom_objects['stars'].items():
+                    if len(object_data) != 3:
+                        print(f"Invalid data format for object {object_id}: {object_data}")
+                        continue
+                        
+                    ra, dec, mag = object_data
 
-            # Discard custom objects fainter than mag 4
-            if mag == "-" or float(mag) > 4.0:
-                continue
+                    # Discard custom objects fainter than mag 4
+                    if mag == "-" or float(mag) > 4.0:
+                        continue
 
-            # If we're making a southern hemisphere planisphere, we flip the sky upside down
-            if is_southern:
-                ra *= -1
-                dec *= -1
+                    # If we're making a southern hemisphere planisphere, we flip the sky upside down
+                    if is_southern:
+                        ra *= -1
+                        dec *= -1
 
-            r: float = radius(dec=dec, latitude=latitude)
-            if r > r_2:
-                continue
+                    r: float = radius(dec=dec, latitude=latitude)
+                    if r > r_2:
+                        continue
 
-            # Represent each star with a small cross
-            # 绘制天体（十字形状）
-            x = -r * cos(ra * unit_deg)
-            y = -r * sin(ra * unit_deg)
-            # size = 0.36 * unit_mm * (5 - mag)  # 十字的大小
-            size = 1.0 * unit_mm  # 固定大小，不依赖星等
-            draw_cross(context, x, y, size, theme['DSO'])
+                    # Represent each star with a small cross
+                    # 绘制天体（十字形状）
+                    x = -r * cos(ra * unit_deg)
+                    y = -r * sin(ra * unit_deg)
+                    # size = 0.36 * unit_mm * (5 - mag)  # 十字的大小
+                    size = 1.0 * unit_mm  # 固定大小，不依赖星等
+                    draw_cross(context, x, y, size, theme['DSO'])
+        except Exception as e:
+            print(f"Error processing custom objects: {e}")
 
         # Write constellation names
         context.set_font_size(0.5)
@@ -350,21 +360,25 @@ class StarWheel(BaseComponent):
 def parse_hms_dms(ra_str: str, dec_str: str) -> Tuple[float, float]:
     """
     将HMS(时分秒)格式的赤经和DMS(度分秒)格式的赤纬转换为度数
+    支持多种引号格式
     """
+    # 调试信息
+    print(f"Parsing RA: '{ra_str}', DEC: '{dec_str}'")
+    
     # 解析赤经 (RA)
     ra_pattern = r"(\d+)h(\d+)m(\d+(\.\d+)?)s"
-    ra_match = re.match(ra_pattern, ra_str)
+    ra_match = re.match(ra_pattern, ra_str.strip())
     if ra_match:
         ra_hrs = float(ra_match.group(1))
         ra_min = float(ra_match.group(2))
         ra_sec = float(ra_match.group(3))
         ra = (ra_hrs + ra_min / 60 + ra_sec / 3600) / 24 * 360
     else:
-        raise ValueError(f"Invalid RA format: {ra_str}")
+        raise ValueError(f"Invalid RA format: '{ra_str}' - expected format like '12h25m30s'")
 
-    # 解析赤纬 (DEC)
-    dec_pattern = r"([+-]?\d+)°(\d+)[''′](\d+(\.\d+)?)[\"″]"
-    dec_match = re.match(dec_pattern, dec_str)
+    # 解析赤纬 (DEC) - 支持多种度分秒符号
+    dec_pattern = r"([+-]?\d+)[°度](\d+)[''′分](\d+(\.\d+)?)[\"″秒]?"
+    dec_match = re.match(dec_pattern, dec_str.strip())
     if dec_match:
         dec_deg = float(dec_match.group(1))
         dec_min = float(dec_match.group(2))
@@ -373,8 +387,9 @@ def parse_hms_dms(ra_str: str, dec_str: str) -> Tuple[float, float]:
         dec_abs = abs(dec_deg) + dec_min / 60 + dec_sec / 3600
         dec = dec_abs if dec_deg >= 0 else -dec_abs
     else:
-        raise ValueError(f"Invalid DEC format: {dec_str}")
-        return ra, dec
+        raise ValueError(f"Invalid DEC format: '{dec_str}' - expected format like '+24°40′42″' or '+24°40'42\"'")
+
+    return ra, dec
 
 def read_custom_objects(csv_file: str) -> dict:
     """
@@ -385,18 +400,41 @@ def read_custom_objects(csv_file: str) -> dict:
         
         with open(csv_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
-            for row in reader:
+            for row_num, row in enumerate(reader, start=2):  # 从第2行开始计数（第1行是标题）
                 # 确保CSV文件包含必要的列
                 if all(col in row for col in ['id', 'ra', 'dec', 'mag']):
                     try:
+                        # 检查数据是否为空
+                        if not row['ra'] or not row['dec'] or not row['id']:
+                            print(f"Warning: Empty data in row {row_num}, skipping")
+                            continue
+                            
                         # 转换坐标格式
-                        ra, dec = parse_hms_dms(row['ra'], row['dec'])
+                        result = parse_hms_dms(row['ra'], row['dec'])
+                        if result is None:
+                            print(f"Warning: Failed to parse coordinates in row {row_num}, skipping")
+                            continue
+                            
+                        ra, dec = result
                         objects_dict['stars'][row['id']] = [ra, dec, float(row['mag'])]
+                        
                     except ValueError as e:
-                        print(f"Error processing row {row['id']}: {e}")
+                        print(f"Error processing row {row_num} (ID: {row.get('id', 'unknown')}): {e}")
                         continue
+                    except Exception as e:
+                        print(f"Unexpected error in row {row_num}: {e}")
+                        continue
+                else:
+                    print(f"Warning: Missing required columns in row {row_num}")
+                    print(f"Available columns: {list(row.keys())}")
+                    print(f"Required columns: ['id', 'ra', 'dec', 'mag']")
                 
+        print(f"Successfully loaded {len(objects_dict['stars'])} custom objects")
         return objects_dict
+        
+    except FileNotFoundError:
+        print(f"Error: CSV file '{csv_file}' not found")
+        return {'stars': {}}
     except Exception as e:
         print(f"Error reading CSV file: {e}")
         return {'stars': {}}
