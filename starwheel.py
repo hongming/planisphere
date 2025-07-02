@@ -363,7 +363,7 @@ def parse_hms_dms(ra_str: str, dec_str: str) -> Tuple[float, float]:
         raise ValueError(f"Invalid RA format: {ra_str}")
 
     # 解析赤纬 (DEC)
-    dec_pattern = r"([+-]?\d+)°(\d+)'(\d+(\.\d+)?)\""
+    dec_pattern = r"([+-]?\d+)°(\d+)[''′](\d+(\.\d+)?)[\"″]"
     dec_match = re.match(dec_pattern, dec_str)
     if dec_match:
         dec_deg = float(dec_match.group(1))
@@ -374,8 +374,7 @@ def parse_hms_dms(ra_str: str, dec_str: str) -> Tuple[float, float]:
         dec = dec_abs if dec_deg >= 0 else -dec_abs
     else:
         raise ValueError(f"Invalid DEC format: {dec_str}")
-
-    return ra, dec
+        return ra, dec
 
 def read_custom_objects(csv_file: str) -> dict:
     """
